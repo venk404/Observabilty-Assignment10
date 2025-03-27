@@ -1,80 +1,41 @@
-# values.yaml
-# Installs Prometheus stack with nodeSelector for nodes labeled "type: dependent_services"
-
-# Global settings
 global:
   nodeSelector:
     type: dependent_services
 
-# Prometheus server configuration
-prometheus:
-  prometheusSpec:
-    nodeSelector:
-      type: dependent_services
-    # Optional: Adjust resources if needed
-    resources:
-      requests:
-        memory: "512Mi"
-        cpu: "500m"
-      limits:
-        memory: "2Gi"
-        cpu: "1000m"
-    # Retention period for metrics
-    retention: "15d"
-    # Storage configuration (optional PVC)
-    storageSpec:
-      volumeClaimTemplate:
-        spec:
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: "10Gi"
+crds:
+  enabled: true
 
-# Node Exporter configuration
-prometheus-node-exporter:
-  # Optional: Adjust resources
-  resources:
-    requests:
-      memory: "64Mi"
-      cpu: "100m"
-    limits:
-      memory: "128Mi"
-      cpu: "200m"
-
-# Alertmanager configuration
 alertmanager:
   alertmanagerSpec:
     nodeSelector:
       type: dependent_services
-    # Optional: Adjust resources
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "200m"
-      limits:
-        memory: "512Mi"
-        cpu: "500m"
 
-# Grafana configuration (included in kube-prometheus-stack)
+prometheus:
+  prometheusSpec:
+    nodeSelector:
+      type: dependent_services
+    additionalScrapeConfigs:
+      - job_name: 'prometheus-blackbox-exporter'
+        metrics_path: /probe
+        params:
+          module: [http2xx]
+        static_configs:
+          - targets:
+            - http://restapi-service.student-api.svc.cluster.local:8080/HealthCheck
+            - http://restapi-service.student-api.svc.cluster.local:8080/GetAllStudents
+            - http://restapi-service.student-api.svc.cluster.local:8080/GetStudent?id=1
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: __param_target
+          - source_labels: [__param_target]
+            target_label: instance
+          - target_label: __address__
+            replacement: blackbox-exporter-prometheus-blackbox-exporter.observability.svc.cluster.local:9115
+
 grafana:
-  nodeSelector:
-    type: dependent_services
-  # Optional: Adjust resources
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "200m"
-    limits:
-      memory: "512Mi"
-      cpu: "500m"
-  # Optional: Set admin password
-  adminPassword: "admin123"
+  enabled: false
 
-# Prometheus Operator configuration
 prometheusOperator:
-  nodeSelector:
-    type: dependent_services
-  # Optional: Adjust resources
   resources:
     requests:
       memory: "128Mi"
@@ -82,8 +43,9 @@ prometheusOperator:
     limits:
       memory: "256Mi"
       cpu: "200m"
-
-# Kube State Metrics (optional dependency)
+  nodeSelector:
+    type: dependent_services
+      
 kube-state-metrics:
   nodeSelector:
     type: dependent_services
@@ -94,7 +56,3 @@ kube-state-metrics:
     limits:
       memory: "128Mi"
       cpu: "200m"
-
-
-pushgateway:
-  enabled: false
