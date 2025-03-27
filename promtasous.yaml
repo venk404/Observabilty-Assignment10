@@ -1,0 +1,100 @@
+# values.yaml
+# Installs Prometheus stack with nodeSelector for nodes labeled "type: dependent_services"
+
+# Global settings
+global:
+  nodeSelector:
+    type: dependent_services
+
+# Prometheus server configuration
+prometheus:
+  prometheusSpec:
+    nodeSelector:
+      type: dependent_services
+    # Optional: Adjust resources if needed
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
+    # Retention period for metrics
+    retention: "15d"
+    # Storage configuration (optional PVC)
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: "10Gi"
+
+# Node Exporter configuration
+prometheus-node-exporter:
+  # Optional: Adjust resources
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "100m"
+    limits:
+      memory: "128Mi"
+      cpu: "200m"
+
+# Alertmanager configuration
+alertmanager:
+  alertmanagerSpec:
+    nodeSelector:
+      type: dependent_services
+    # Optional: Adjust resources
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+# Grafana configuration (included in kube-prometheus-stack)
+grafana:
+  nodeSelector:
+    type: dependent_services
+  # Optional: Adjust resources
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  # Optional: Set admin password
+  adminPassword: "admin123"
+
+# Prometheus Operator configuration
+prometheusOperator:
+  nodeSelector:
+    type: dependent_services
+  # Optional: Adjust resources
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# Kube State Metrics (optional dependency)
+kube-state-metrics:
+  nodeSelector:
+    type: dependent_services
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "100m"
+    limits:
+      memory: "128Mi"
+      cpu: "200m"
+
+
+pushgateway:
+  enabled: false

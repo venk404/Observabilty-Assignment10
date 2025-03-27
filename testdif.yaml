@@ -1,0 +1,15 @@
+additionalScrapeConfigs:
+  - job_name: 'prometheus-blackbox-exporter'
+    metrics_path: /probe
+    params:
+      module: [http2xx]
+    static_configs:
+      - targets:
+        - http://restapi-service.student-api.svc.cluster.local:8080/HealthCheck
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter-prometheus-blackbox-exporter.observability.svc.cluster.local:9115
