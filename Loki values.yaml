@@ -34,12 +34,24 @@ promtail:
       - url: http://{{ .Release.Name }}:3100/loki/api/v1/push
     snippets:
       scrapeConfigs: |
-        - job_name: kubernetes-pods
+        - job_name: kubernetes-pods-restapi-student-api
           pipeline_stages:
             - cri: {}
           kubernetes_sd_configs:
             - role: pod
           relabel_configs:
+            # Filter by namespace - keep only student-api namespace
+            - source_labels:
+                - __meta_kubernetes_namespace
+              action: keep
+              regex: student-api
+            # Filter by app - keep only restapi app
+            - source_labels:
+                - __meta_kubernetes_pod_label_app_kubernetes_io_name
+                - __meta_kubernetes_pod_label_app
+              regex: restapi|;restapi|restapi;.*
+              action: keep
+            # The rest of your relabeling configurations
             - source_labels:
                 - __meta_kubernetes_pod_controller_name
               regex: ([0-9a-z-.]+?)(-[0-9a-f]{8,10})?
