@@ -51,32 +51,15 @@ promtail:
                 - __meta_kubernetes_pod_label_app
               regex: restapi|;restapi|restapi;.*
               action: keep
-            # The rest of your relabeling configurations
-            - source_labels:
-                - __meta_kubernetes_pod_controller_name
-              regex: ([0-9a-z-.]+?)(-[0-9a-f]{8,10})?
-              action: replace
-              target_label: __tmp_controller_name
+            # Setup app label properly
             - source_labels:
                 - __meta_kubernetes_pod_label_app_kubernetes_io_name
                 - __meta_kubernetes_pod_label_app
-                - __tmp_controller_name
                 - __meta_kubernetes_pod_name
               regex: ^;*([^;]+)(;.*)?$
               action: replace
               target_label: app
-            - source_labels:
-                - __meta_kubernetes_pod_label_app_kubernetes_io_instance
-                - __meta_kubernetes_pod_label_instance
-              regex: ^;*([^;]+)(;.*)?$
-              action: replace
-              target_label: instance
-            - source_labels:
-                - __meta_kubernetes_pod_label_app_kubernetes_io_component
-                - __meta_kubernetes_pod_label_component
-              regex: ^;*([^;]+)(;.*)?$
-              action: replace
-              target_label: component
+            # Keep essential labels only
             - action: replace
               source_labels:
               - __meta_kubernetes_pod_node_name
@@ -100,6 +83,7 @@ promtail:
               source_labels:
               - __meta_kubernetes_pod_container_name
               target_label: container
+            # Set up proper path to logs
             - action: replace
               replacement: /var/log/pods/*$1/*.log
               separator: /
