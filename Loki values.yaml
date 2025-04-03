@@ -37,6 +37,31 @@ promtail:
         - job_name: kubernetes-pods-restapi-student-api
           pipeline_stages:
             - cri: {}
+            - match:
+                selector: '{app="restapi", namespace="student-api"}'
+                stages:
+                  # Pattern 1: Python log lines with timestamp, level, module, method
+                  - regex:
+                      expression: '(?P<local_timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}) \| (?P<level>\w+)\s+ \| (?P<module>[^:]+):(?P<method>[^:]+):(?P<line>\d+) - (?P<message>.*)'
+                  
+                  # Pattern 2: HTTP logs with client IP, method, endpoint, status
+                  - regex:
+                      expression: '(?P<level>\w+):\s+(?P<client_ip>[\d\.]+):(?P<client_port>\d+) - "(?P<http_method>[A-Z]+) (?P<endpoint>[^ ]+) HTTP/\d\.\d" (?P<status_code>\d+) (?P<status_message>.*)'
+                  
+                  # Pattern 3: Generic error logs (adjust based on your error format)
+                  - regex:
+                      expression: '(?P<local_timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}) \| (?P<level>ERROR|WARNING|CRITICAL|DEBUG)\s+ \| (?P<module>[^:]+):(?P<method>[^:]+):(?P<line>\d+) - (?P<error_message>.*)'
+                  - labels:
+                      level:
+                      module:
+                      method:
+                      line:
+                      message:
+                      error_message:
+                      http_method:
+                      endpoint:
+                      status_code:
+                      client_ip:
           kubernetes_sd_configs:
             - role: pod
           relabel_configs:
@@ -114,6 +139,19 @@ grafana:
       labelValue: ""
       enabled: true
       maxLines: 1000
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-kube-prometheus-prometheus:9090/  
+        access: proxy
+        isDefault: true
+      - name: Loki
+        type: loki
+        url: http://{{(include "loki.serviceName" .)}}:{{ .Values.loki.service.port }}  # Update with your actual Loki service name and port
+        access: proxy
   image:
     tag: 10.3.3
   nodeSelector:

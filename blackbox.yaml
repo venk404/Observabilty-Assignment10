@@ -16,6 +16,9 @@ config:
         valid_status_codes: [200]
         headers:
           Accept: application/json
+    tcp_connect:
+      prober: tcp
+      timeout: 5s
 
 serviceMonitor:
   selfMonitor:
