@@ -72,3 +72,5 @@ http://127.0.0.1:30007/docs
 
 ## Conclusion
 This stack provides complete visibility into system performance and health across your Kubernetes environment.
+
+![Deploy Observailty Stack](https://img.notionusercontent.com/s3/prod-files-secure%2F9ce3a364-243d-4bf8-803e-331bbc517340%2F9c32853f-89c0-424e-8b04-f7bc12c6d12b%2Fobs-k8s-deployment.drawio.png/size/?exp=1744145476&sig=SEOHMNuS8K2hUIgvbIiFNAiC4lFNISozqEwY0_MV5YQ&id=50b472ac-1b05-4f82-830f-e3bf1efc7719&table=block)
