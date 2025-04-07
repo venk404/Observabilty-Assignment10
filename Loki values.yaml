@@ -6,7 +6,7 @@ test_pod:
 loki:
   enabled: true
   isDefault: true
-  url: http://{{(include "loki.serviceName" .)}}:{{ .Values.loki.service.port }}
+  url: http://loki:3100
   readinessProbe:
     httpGet:
       path: /ready
@@ -150,7 +150,7 @@ grafana:
         isDefault: true
       - name: Loki
         type: loki
-        url: http://{{(include "loki.serviceName" .)}}:{{ .Values.loki.service.port }}  # Update with your actual Loki service name and port
+        url: http://loki:3100 # Update with your actual Loki service name and port
         access: proxy
   image:
     tag: 10.3.3
