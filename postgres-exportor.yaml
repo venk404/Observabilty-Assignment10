@@ -2,9 +2,26 @@ config:
   datasource:
     host: "postgres-svc.student-api.svc.cluster.local"
     port: "5432"
-    user: "Postgres"
-    password: "pass"
-    database: "StudentsDB"
+    userSecret:
+      name: "dev-db"
+      key: "POSTGRES_USER"
+    passwordSecret:
+      name: "dev-db"
+      key: "POSTGRES_PASSWORD"
+    database: ""  
+    databaseSecret:
+      name: "dev-db"
+      key: "POSTGRES_DB" 
+
+externalSecret:
+  name: external-secrets
+  namespace: observability
+  refreshInterval: "15s"
+  targetSecretName: dev-db
+  secretKey: DBSECRETS
+
+clusterSecretStore:
+  name: external-secretsstores
 
 serviceMonitor:
   enabled: true
