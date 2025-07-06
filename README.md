@@ -42,7 +42,7 @@ Note: The installation includes external secret templates that create secrets us
 
 ### 6. Deploy PLG Stack (Promtail, Loki, Grafana)
 ```bash
-helm upgrade --install loki ./loki-stack/ --values './Loki values.yaml' -n observability
+helm install loki ./loki-stack/ --values './Loki values.yaml' -n observability
 ```
 
 ### 7. Port Forward Services for Local Access
