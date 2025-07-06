@@ -15,7 +15,7 @@ prometheus:
     nodeSelector:
       type: dependent_services
     additionalScrapeConfigs:
-      - job_name: 'Restapi'
+      - job_name: 'blackbox-exporter'
         metrics_path: /probe
         params:
           module: [http2xx]
@@ -73,6 +73,14 @@ prometheus:
             target_label: instance
           - target_label: __address__
             replacement: blackbox-exporter-prometheus-blackbox-exporter.observability.svc.cluster.local:9115
+      - job_name: 'Restapi'
+        metrics_path: /metrics
+        static_configs:
+          - targets:
+            - restapi-service.student-api.svc.cluster.local:8080
+
+
+
 grafana:
   enabled: false
 
