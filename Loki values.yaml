@@ -40,28 +40,38 @@ promtail:
             - match:
                 selector: '{app="restapi", namespace="student-api"}'
                 stages:
-                  # Pattern 1: Python log lines with timestamp, level, module, method
-                  - regex:
-                      expression: '(?P<local_timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}) \| (?P<level>\w+)\s+ \| (?P<module>[^:]+):(?P<method>[^:]+):(?P<line>\d+) - (?P<message>.*)'
-                  
-                  # Pattern 2: HTTP logs with client IP, method, endpoint, status
+                  # Pattern 1: JSON logs (Python application logs)
+                  - json:
+                      expressions:
+                        timestamp: timestamp
+                        level: level
+                        message: message
+                        function: function
+                        line: line
+                        file: file
+                        module: module
+                  - json:
+                      source: message
+                      expressions:
+                        event: event
+                        endpoint: endpoint
+                  # Pattern 2: HTTP logs
                   - regex:
                       expression: '(?P<level>\w+):\s+(?P<client_ip>[\d\.]+):(?P<client_port>\d+) - "(?P<http_method>[A-Z]+) (?P<endpoint>[^ ]+) HTTP/\d\.\d" (?P<status_code>\d+) (?P<status_message>.*)'
-                  
-                  # Pattern 3: Generic error logs (adjust based on your error format)
-                  - regex:
-                      expression: '(?P<local_timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}) \| (?P<level>ERROR|WARNING|CRITICAL|DEBUG)\s+ \| (?P<module>[^:]+):(?P<method>[^:]+):(?P<line>\d+) - (?P<error_message>.*)'
+                  # Set labels for all parsed fields
                   - labels:
+                      timestamp:
                       level:
                       module:
-                      method:
+                      function:
                       line:
-                      message:
-                      error_message:
-                      http_method:
+                      file:
+                      event:
                       endpoint:
-                      status_code:
+                      http_method:
                       client_ip:
+                      status_code:
+                      status_message:
           kubernetes_sd_configs:
             - role: pod
           relabel_configs:
@@ -133,12 +143,21 @@ fluent-bit:
 
 grafana:
   enabled: true
+  persistence:
+    enabled: true
+    size: 5Gi
+  
+
   sidecar:
-    datasources:
-      label: ""
-      labelValue: ""
+    dashboards:
       enabled: true
-      maxLines: 1000
+      searchNamespace: ALL
+    alerts:
+      enabled: true
+      label: grafana_alert
+      labelValue: "1"
+      searchNamespace: ALL
+
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -152,10 +171,50 @@ grafana:
         type: loki
         url: http://loki:3100 # Update with your actual Loki service name and port
         access: proxy
+
   image:
     tag: 10.3.3
+
   nodeSelector:
     type: "dependent_services"
+
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards
+  
+  dashboards:
+    default:
+      # Node Exporter Dashboard
+      
+      # Postgres Dashboard
+      postgres-metrics:
+        gnetId: 6742
+        datasource: Prometheus
+      
+      # Kubernetes Metrics Dashboard
+      kube-state-metrics:
+        gnetId: 13332
+        datasource: Prometheus
+        revision: 12
+      
+      # Blackbox Exporter Dashboard
+      blackbox-metrics:
+        gnetId: 7587 
+        datasource: Prometheus
+
+      node-expotorer-metrics:
+        gnetId: 1860
+        datasource: Prometheus
+        revision: 37
 
 prometheus:
   enabled: false

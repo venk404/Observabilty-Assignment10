@@ -8,10 +8,7 @@ config:
     passwordSecret:
       name: "dev-db"
       key: "POSTGRES_PASSWORD"
-    database: ""  
-    databaseSecret:
-      name: "dev-db"
-      key: "POSTGRES_DB" 
+    database: "StudentsDB"
 
 externalSecret:
   name: external-secrets

@@ -15,7 +15,7 @@ prometheus:
     nodeSelector:
       type: dependent_services
     additionalScrapeConfigs:
-      - job_name: 'blackbox-exporter'
+      - job_name: 'Blackbox-exporter'
         metrics_path: /probe
         params:
           module: [http2xx]
@@ -24,6 +24,7 @@ prometheus:
             - http://restapi-service.student-api.svc.cluster.local:8080/HealthCheck
             - http://restapi-service.student-api.svc.cluster.local:8080/GetAllStudents
             - http://restapi-service.student-api.svc.cluster.local:8080/GetStudent?id=1
+            - http://restapi-service.student-api.svc.cluster.local:8080/docs
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target
@@ -73,14 +74,40 @@ prometheus:
             target_label: instance
           - target_label: __address__
             replacement: blackbox-exporter-prometheus-blackbox-exporter.observability.svc.cluster.local:9115
+      - job_name: 'Loki'
+        metrics_path: /probe
+        params:
+          module: [http2xx]
+        static_configs:
+          - targets:
+            - http://loki.observability.svc.cluster.local:3100/ready
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: __param_target
+          - source_labels: [__param_target]
+            target_label: instance
+          - target_label: __address__
+            replacement: blackbox-exporter-prometheus-blackbox-exporter.observability.svc.cluster.local:9115
+      - job_name: 'Prometheus'
+        metrics_path: /probe
+        params:
+          module: [http2xx]
+        static_configs:
+          - targets:
+            - http://prometheus-operated.observability.svc.cluster.local:9090/-/healthy
+            - http://prometheus-operated.observability.svc.cluster.local:9090/-/ready
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: __param_target
+          - source_labels: [__param_target]
+            target_label: instance
+          - target_label: __address__
+            replacement: blackbox-exporter-prometheus-blackbox-exporter.observability.svc.cluster.local:9115
       - job_name: 'Restapi'
         metrics_path: /metrics
         static_configs:
           - targets:
             - restapi-service.student-api.svc.cluster.local:8080
-
-
-
 grafana:
   enabled: false
 
