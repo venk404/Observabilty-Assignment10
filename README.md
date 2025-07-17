@@ -62,7 +62,7 @@ Default credentials:
 - Username: admin
 - Password: (Retrieve with command below)
 ```bash
-kubectl get secret loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+kubectl get secret loki-grafana -o jsonpath="{.data.admin-password}" -n observability | base64 --decode
 ```
 
 ### 8. Access the REST API
