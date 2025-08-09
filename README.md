@@ -27,12 +27,13 @@ kubectl create namespace observability
 ```bash
 helm install prometheus ./kube-prometheus-stack/ --values ./prometheus.yaml -n observability
 ```
+#### Ensure all pods are in the 'Ready' state before continuing.
 
 ### 4. Install Blackbox Exporter
 ```bash
 helm install blackbox-exporter ./prometheus-blackbox-exporter/ --values ./blackbox-exportor.yaml -n observability
 ```
-
+#### Ensure all pods are in the 'Ready' state before continuing.
 ### 5. Install Postgres Exporter
 ```bash
 helm install postgres-exportor ./prometheus-postgres-exporter/ --values ./postgres-exportor.yaml -n observability
