@@ -14,7 +14,7 @@ Implementing a comprehensive observability stack to monitor Kubernetes clusters 
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/venk404/SRE--RestAPI.git
+git clone https://github.com/venk404/Observabilty-Assignment10.git
 cd "Assignment 10"
 ```
 
