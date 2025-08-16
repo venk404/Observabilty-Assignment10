@@ -191,31 +191,6 @@ grafana:
           options:
             path: /var/lib/grafana/dashboards
   
-  dashboards:
-    default:
-      # Node Exporter Dashboard
-      
-      # Postgres Dashboard
-      postgres-metrics:
-        gnetId: 6742
-        datasource: Prometheus
-      
-      # Kubernetes Metrics Dashboard
-      kube-state-metrics:
-        gnetId: 13332
-        datasource: Prometheus
-        revision: 12
-      
-      # Blackbox Exporter Dashboard
-      blackbox-metrics:
-        gnetId: 7587 
-        datasource: Prometheus
-
-      node-expotorer-metrics:
-        gnetId: 1860
-        datasource: Prometheus
-        revision: 37
-
 prometheus:
   enabled: false
 
